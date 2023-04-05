@@ -4,6 +4,8 @@ A new Flutter project.
 
 Demo:
 
+<img src="https://user-images.githubusercontent.com/71999020/230116536-27d2068f-f176-48ff-9927-f66b78e58d2e.png" height=600 width=300>
+
 ![Screenshot_1680705751](https://user-images.githubusercontent.com/71999020/230116536-27d2068f-f176-48ff-9927-f66b78e58d2e.png)
 
 ## Getting Started
