@@ -19,60 +19,28 @@ class ConsultantWidget extends StatefulWidget {
 class _ConsultantWidgetState extends State<ConsultantWidget> {
   Widget _parseDateTime() {
     final time = widget.consultant.time;
-    final minute = _twoDigit(time.minute);
-    final hour = _twoDigit(time.hour);
-    final month = _getMonth(time.month);
+    final minute = Common.twoDigit(time.minute);
+    final hour = Common.twoDigit(time.hour);
+    final month = Common.getMonth(time.month);
+    final shift = time.hour >= 12 ? "PM" : "AM";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          "$hour:$minute",
+          "$hour:$minute $shift",
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
                 color: widget.consultant.active ? Colors.white : AppColors.primayGreen,
-                fontSize: 18,
                 fontWeight: FontWeight.w500,
               ),
         ),
         const SizedBox(height: 5),
         Text(
-          "${_twoDigit(time.day)} $month",
+          "${Common.twoDigit(time.day)} $month",
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
     );
   }
-
-  String _getMonth(int month) {
-    switch (month) {
-      case 1:
-        return "Jan";
-      case 2:
-        return "Feb";
-      case 3:
-        return "Mar";
-      case 4:
-        return "Apr";
-      case 5:
-        return "May";
-      case 6:
-        return "Jun";
-      case 7:
-        return "Jul";
-      case 8:
-        return "Aug";
-      case 9:
-        return "Sept";
-      case 10:
-        return "Oct";
-      case 11:
-        return "Nov";
-      case 12:
-        return "Dec";
-    }
-    return "";
-  }
-
-  String _twoDigit(int number) => number < 10 ? "0$number" : number.toString();
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +51,7 @@ class _ConsultantWidgetState extends State<ConsultantWidget> {
       ),
       width: context.width * .45,
       padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.symmetric(horizontal: 10).copyWith(left: widget.leftPadding ? null : 0),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

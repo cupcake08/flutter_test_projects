@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:test_project/models/models.dart';
+import 'package:test_project/screens/screens.dart';
 import 'package:test_project/util/utils.dart';
 import 'package:test_project/widgets/widgets.dart';
 
@@ -50,20 +49,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // profile header
-            const SizedBox(height: 10),
-            Row(
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // profile header
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    ProfileAvatar(user: widget.currentUser, applyBorder: false),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => ProfileScreen(user: widget.currentUser))),
+                      child: ProfileAvatar(user: widget.currentUser, applyBorder: false),
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +78,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                         Text(
                           widget.currentUser.name,
-                          style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.black),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(color: Colors.black, fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -87,33 +93,42 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 )
               ],
             ),
-            const SizedBox(height: 20),
-            const HeadlineHelperWidget(title: "Upcoming consultants"),
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: widget.consultants.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return ConsultantWidget(
-                    consultant: widget.consultants[index],
-                    leftPadding: index != 0,
-                  );
-                },
-              ),
+          ),
+          const SizedBox(height: 20),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: HeadlineHelperWidget(title: "Upcoming consultants"),
+          ),
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: widget.consultants.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return ConsultantWidget(
+                  consultant: widget.consultants[index],
+                  leftPadding: index != 0,
+                );
+              },
             ),
-            const SizedBox(height: 20),
-            const HeadlineHelperWidget(title: "patient profiles"),
-            SizedBox(
-              height: 80,
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: widget.patients.length + 1,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return index == 0
-                      ? CircleAvatar(
+          ),
+          const SizedBox(height: 20),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: HeadlineHelperWidget(title: "patient profiles"),
+          ),
+          SizedBox(
+            height: 80,
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: widget.patients.length + 1,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return index == 0
+                    ? Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: CircleAvatar(
                           radius: 25.0,
                           child: GestureDetector(
                             onTap: () {},
@@ -122,38 +137,42 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               size: 35,
                             ),
                           ),
-                        )
-                      : ProfileAvatar(
-                          user: widget.patients[index - 1],
-                          applyBorder: false,
-                        );
-                },
-              ),
+                        ),
+                    )
+                    : ProfileAvatar(
+                        user: widget.patients[index - 1],
+                        applyBorder: false,
+                      );
+              },
             ),
-            // tab bar
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(60 / 2),
-                color: AppColors.secondaryBlue,
-              ),
-              height: 60,
-              child: TabBar(
-                controller: _tabBarController,
-                indicator: TabBarInd(),
-                unselectedLabelStyle: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.black),
-                labelStyle: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.white),
-                tabs: const [
-                  Tab(text: "Last Enquiries"),
-                  Tab(text: "Reports"),
-                ],
-              ),
+          ),
+          // tab bar
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(60 / 2),
+              color: AppColors.secondaryBlue,
             ),
-            ValueListenableBuilder(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            height: 60,
+            child: TabBar(
+              controller: _tabBarController,
+              indicator: TabBarInd(),
+              unselectedLabelColor: Colors.black,
+              labelStyle: Theme.of(context).textTheme.titleMedium!,
+              tabs: const [
+                Tab(text: "Last Enquiries"),
+                Tab(text: "Reports"),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: ValueListenableBuilder(
               valueListenable: _tabNotifier,
               builder: (context, value, _) => _tabs[value],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -169,8 +188,13 @@ class ReportsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return reports.isEmpty
-        ? const Center(
-            child: Text("No reports for now"),
+        ? Center(
+            child: Column(
+              children: const [
+                SizedBox(height: 20),
+                Text("No reports for now"),
+              ],
+            ),
           )
         : ListView.builder(
             itemCount: reports.length,
