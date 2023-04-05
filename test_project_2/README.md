@@ -2,6 +2,10 @@
 
 A new Flutter project.
 
+Demo:
+
+![Screenshot_1680705751](https://user-images.githubusercontent.com/71999020/230116536-27d2068f-f176-48ff-9927-f66b78e58d2e.png)
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
