@@ -4,3 +4,9 @@ enum HttpMethod {
   put,
   delete,
 }
+
+enum ApiStatus {
+  success,
+  waiting,
+  error,
+}

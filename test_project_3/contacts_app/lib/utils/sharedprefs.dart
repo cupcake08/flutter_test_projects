@@ -10,6 +10,8 @@ class SharedPrefs {
     return isCleared;
   }
 
+  static Future<void> init() async => storage = await SharedPreferences.getInstance();
+
   static Future<bool> _clearStorage() async => await storage.clear();
 
   static updateAuthToken(String authToken) => storage.setString('authToken', authToken);

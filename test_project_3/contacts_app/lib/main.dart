@@ -1,13 +1,11 @@
-
 import 'package:flutter/material.dart';
-import 'dart:developer' as dev show log;
+import 'package:contacts_app/screens/screens.dart';
+import 'package:contacts_app/utils/utils.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefs.init();
   runApp(const MyApp());
-}
-
-extension Log on Object {
-  void log() => dev.log(toString());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,28 +13,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      // home: SharedPrefs.isUserLoggedIn() ? const Home() : const LoginScreen(),
       home: Home(),
-    );
-  }
-}
-
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Test Project"),
-      ),
     );
   }
 }
