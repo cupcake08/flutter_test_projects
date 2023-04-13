@@ -1,3 +1,4 @@
+import 'package:contacts_app/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs {
@@ -8,6 +9,12 @@ class SharedPrefs {
   static Future<bool> logOut() async {
     bool isCleared = await _clearStorage();
     return isCleared;
+  }
+
+  static Future<void> setUserData(User user) async {
+    await storage.setString("name", user.name);
+    await storage.setString("email", user.email);
+    await updateAuthToken(user.authToken);
   }
 
   static Future<void> init() async => storage = await SharedPreferences.getInstance();

@@ -5,7 +5,6 @@ export interface I_User extends mongoose.Document {
     name: string;
     email: string;
     password: string;
-    contacts?: mongoose.Types.ObjectId[] | null;
 }
 
 const UserSchema = new mongoose.Schema<I_User>({
@@ -23,12 +22,6 @@ const UserSchema = new mongoose.Schema<I_User>({
         type: String,
         required: true,
     },
-    contacts: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "contacts",
-        },
-    ],
 }, { collection: "users" });
 
 // Hash password before saving to DB
