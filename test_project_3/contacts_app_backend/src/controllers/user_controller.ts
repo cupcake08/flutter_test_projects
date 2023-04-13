@@ -27,13 +27,11 @@ export const login = async (req: Request, res: Response) => {
 export const signup = async (req: Request, res: Response) => {
     try {
         const user = new UserModel(req.body);
-        const newUser = await user.save();
-        user.save().then(() => {
-            const token = jwt.sign(newUser, process.env.JWT_SECRET as string, {
-                expiresIn: "2 days",
-            });
-            return res.status(201).send({ message: "User created successfully", newUser, authToken: token });
-        }).catch((_) => res.status(401).send({ message: "Account already exist!" }));
+        const foundUser = await user.save();
+        const token = jwt.sign({ id: foundUser._id }, process.env.JWT_SECRET as string, {
+            expiresIn: "2 days",
+        });
+        return res.status(200).send({ message: "User created successfully", foundUser, authToken: token });
     } catch (error) {
         console.log(error);
         return res.status(500).send({ message: "Internal server error" });

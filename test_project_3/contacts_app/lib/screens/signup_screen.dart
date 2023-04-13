@@ -1,35 +1,40 @@
-import 'package:contacts_app/screens/screens.dart';
+import 'package:contacts_app/models/user.dart';
+import 'package:contacts_app/screens/home_screen.dart';
+import 'package:contacts_app/screens/login_screen.dart';
 import 'package:contacts_app/services/user_services.dart';
 import 'package:contacts_app/utils/utils.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPassController = TextEditingController();
   bool _isLoading = false;
 
-  void _login() async {
-    if (_formKey.currentState!.validate()) {
+  void _signup() async {
+    if (_formKey.currentState!.validate() && _confirmPassController.text == _passwordController.text) {
       setState(() {
         _isLoading = true;
       });
-      final user = await UserServices.loginUser(
-        _emailController.text.trim(),
+      final user = await UserServices.signupUser(
+        User(name: _nameController.text.trim(), email: _emailController.text.trim()),
         _passwordController.text.trim(),
       );
+
       if (user != null) {
         await SharedPrefs.setUserData(user);
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login Failed")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sign Up Failed")));
       }
       setState(() {
         _isLoading = false;
@@ -44,6 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPassController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -52,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final RegExp emailRegex = RegExp(r"^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$");
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Sign Up'),
         centerTitle: true,
       ),
       body: Center(
@@ -67,6 +74,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    TextFormField(
+                      controller: _nameController,
+                      keyboardType: TextInputType.text,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -101,10 +123,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: _confirmPassController,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your password';
+                        } else if (value != _passwordController.text) {
+                          return 'Confirm password is wrong!';
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
                     ElevatedButton(
-                      onPressed: _isLoading ? null : _login,
+                      onPressed: _isLoading ? null : _signup,
                       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 10)),
-                      child: _isLoading ? const CircularProgressIndicator() : const Text('Login'),
+                      child: _isLoading ? const CircularProgressIndicator() : const Text('Sign Up'),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -113,15 +152,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Don\'t have an account? ',
+                            'Already have an account? ',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           GestureDetector(
                             onTap: () => Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const SignupScreen()),
+                              MaterialPageRoute(builder: (_) => const LoginScreen()),
                             ),
                             child: const Text(
-                              'Sign up',
+                              'Log In',
                               style: TextStyle(
                                 color: Colors.blue,
                                 fontSize: 16.0,

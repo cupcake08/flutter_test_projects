@@ -23,6 +23,23 @@ class UserServices {
     return user;
   }
 
+  static Future<User?> signupUser(User user, String password) async {
+    User? userR;
+    final body = user.toJson();
+    body['password'] = password;
+    await NetworkManager().sendHttpRequest(
+      endpoint: NetworkingUrls.signup,
+      type: HttpMethod.post,
+      body: body,
+      callback: ApiCallback(
+        onCompleted: () => "signup request".log(),
+        onSuccess: (res) => userR = userFromJson(res.body),
+        onError: (msg, _) => "Error: $msg".log(),
+      ),
+    );
+    return userR;
+  }
+
   static Future<List<Contact>?> getContacts(int skip, int limit) async {
     List<Contact>? contacts;
     await NetworkManager().sendHttpRequest(

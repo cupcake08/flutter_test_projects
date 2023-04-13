@@ -14,7 +14,7 @@ class SharedPrefs {
   static Future<void> setUserData(User user) async {
     await storage.setString("name", user.name);
     await storage.setString("email", user.email);
-    await updateAuthToken(user.authToken);
+    await updateAuthToken(user.authToken!);
   }
 
   static Future<void> init() async => storage = await SharedPreferences.getInstance();

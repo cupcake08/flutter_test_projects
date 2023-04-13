@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 User userFromJson(String body) {
-  final data = json.decode(body);
+  final data = json.decode(body) as Map;
   final tempUserData = data['foundUser'] as Map<String, dynamic>;
   tempUserData['authToken'] = data['authToken'];
   return User.fromJson(tempUserData);
@@ -10,13 +10,22 @@ User userFromJson(String body) {
 class User {
   final String name;
   final String email;
-  final String authToken;
+  final String? authToken;
 
-  User(this.name, this.email, this.authToken);
+  User({
+    required this.name,
+    required this.email,
+    this.authToken,
+  });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        json['name'],
-        json['email'],
-        json['authToken'],
+        name: json['name'],
+        email: json['email'],
+        authToken: json['authToken'],
       );
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "email": email,
+      };
 }
