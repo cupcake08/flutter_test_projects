@@ -1,6 +1,6 @@
 import 'package:contacts_app/models/contact.dart';
 import 'package:contacts_app/services/user_services.dart';
-import 'package:contacts_app/utils/enums.dart';
+import 'package:contacts_app/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class ContactsNotifier extends ChangeNotifier {
@@ -10,7 +10,7 @@ class ContactsNotifier extends ChangeNotifier {
   ApiStatus _contactApiStatus = ApiStatus.success;
 
   // getters
-  List<Contact>? get contacts => _contacts;
+  List<Contact> get contacts => _contacts;
   bool get moreContacts => _moreContacts;
   ApiStatus get apiStatus => _apiStatus;
   ApiStatus get contactApiStatus => _contactApiStatus;
@@ -31,6 +31,7 @@ class ContactsNotifier extends ChangeNotifier {
 
   Future<void> getContacts({required int skip, int limit = 10, bool notify = false}) async {
     _setApiStatus(ApiStatus.waiting, notify);
+    _moreContacts = true;
     if (skip == 0) {
       _contacts.clear();
     }
@@ -46,21 +47,41 @@ class ContactsNotifier extends ChangeNotifier {
 
   Future<void> createContact(Contact contact) async {
     _setContactApiStatus(ApiStatus.waiting, true);
-    final created = await UserServices.updateContact(contact);
-    if (created) {
+    final newContact = await UserServices.createContact(contact);
+    if (newContact != null) {
+      _contacts.insert(0, newContact);
+      _setContactApiStatus(ApiStatus.success, true);
     } else {
       _setContactApiStatus(ApiStatus.error, true);
     }
   }
 
-  Future<void> updateContact(Contact contact) async {
+  Future<void> updateContact(Contact contact, String id) async {
     _setContactApiStatus(ApiStatus.waiting, true);
-    final updated = await UserServices.updateContact(contact);
+    final updated = await UserServices.updateContact(contact, id);
     if (updated) {
+      assert(_contacts.isNotEmpty);
+      int index = _contacts.indexWhere((element) => element.id == id);
+      _contacts[index] = Contact(
+        name: contact.name,
+        phone: contact.phone,
+        countryCode: contact.countryCode,
+        id: id,
+      );
+      _setContactApiStatus(ApiStatus.success, true);
     } else {
       _setContactApiStatus(ApiStatus.error, true);
     }
   }
 
-  Future<void> deleteContact(int index) async {}
+  Future<void> deleteContact(Contact contact) async {
+    _setContactApiStatus(ApiStatus.waiting, true);
+    final deleted = await UserServices.deleteContact(contact.id!);
+    if (deleted) {
+      _contacts.removeWhere((element) => element.id == contact.id);
+      _setContactApiStatus(ApiStatus.success, true);
+    } else {
+      _setContactApiStatus(ApiStatus.error, true);
+    }
+  }
 }

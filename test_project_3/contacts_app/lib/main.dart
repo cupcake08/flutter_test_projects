@@ -1,6 +1,8 @@
+import 'package:contacts_app/notifiers/contacts_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_app/screens/screens.dart';
 import 'package:contacts_app/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,10 +15,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      // home: SharedPrefs.isUserLoggedIn() ? const Home() : const LoginScreen(),
-      home: Home(),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (context) => ContactsNotifier())],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SharedPrefs.isUserLoggedIn() ? const Home() : const LoginScreen(),
+      ),
     );
   }
 }

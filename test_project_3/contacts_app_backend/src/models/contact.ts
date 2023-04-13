@@ -3,7 +3,6 @@ import mongoose, { Schema, Types } from "mongoose";
 export interface I_Contact extends mongoose.Document {
     name: string;
     phone: number;
-    email?: string;
     userId: Types.ObjectId;
     countryCode: number;
 }
@@ -16,10 +15,6 @@ const ContactSchema = new mongoose.Schema<I_Contact>({
     phone: {
         type: Number,
         required: true,
-    },
-    email: {
-        type: String,
-        lowercase: true,
     },
     userId: {
         type: Schema.Types.ObjectId,

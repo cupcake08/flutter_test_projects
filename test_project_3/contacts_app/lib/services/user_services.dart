@@ -30,21 +30,38 @@ class UserServices {
       type: HttpMethod.get,
       callback: ApiCallback(
         onCompleted: () => "requested to get contacts".log(),
-        onSuccess: (res) => getContactsFromJson(res.body),
+        onSuccess: (res) => contacts = getContactsFromJson(res.body),
         onError: (msg, _) => "Error: $msg".log(),
       ),
     );
     return contacts;
   }
 
-  static Future<bool> updateContact(Contact contact) async {
-    bool result = false;
+  static Future<Contact?> createContact(Contact contact) async {
+    Contact? contactR;
     await NetworkManager().sendHttpRequest(
-      endpoint: NetworkingUrls.updateContact,
-      type: HttpMethod.put,
+      endpoint: NetworkingUrls.createContact,
+      type: HttpMethod.post,
       body: contact.toJson(),
       callback: ApiCallback(
-        onCompleted: () => "requested to get contacts".log(),
+        onCompleted: () => "requested to create contact".log(),
+        onSuccess: (res) => contactR = getContactFromJson(res.body),
+        onError: (msg, _) => "Error: $msg".log(),
+      ),
+    );
+    return contactR;
+  }
+
+  static Future<bool> updateContact(Contact contact, String id) async {
+    bool result = false;
+    final body = contact.toJson();
+    final url = "${NetworkingUrls.updateContact}?id=$id";
+    await NetworkManager().sendHttpRequest(
+      endpoint: url,
+      type: HttpMethod.put,
+      body: body,
+      callback: ApiCallback(
+        onCompleted: () => "requested to update contact".log(),
         onSuccess: (res) => result = true,
         onError: (msg, _) => "Error: $msg".log(),
       ),
@@ -52,13 +69,13 @@ class UserServices {
     return result;
   }
 
-  static Future<bool> deleteContact() async {
+  static Future<bool> deleteContact(String id) async {
     bool result = false;
     await NetworkManager().sendHttpRequest(
-      endpoint: NetworkingUrls.deleteContact,
+      endpoint: "${NetworkingUrls.deleteContact}?id=$id",
       type: HttpMethod.delete,
       callback: ApiCallback(
-        onCompleted: () => "requested to get contacts".log(),
+        onCompleted: () => "requested to delete contact".log(),
         onSuccess: (res) => result = true,
         onError: (msg, _) => "Error: $msg".log(),
       ),

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import ContactModel from "../models/contact";
 
 export const getContacts = async (req: Request, res: Response) => {
@@ -20,9 +20,9 @@ export const createContact = async (req: Request, res: Response) => {
     try {
         const contact = new ContactModel(req.body);
         contact.userId = req.user._id;
-        console.log(contact);
-        await ContactModel.create(contact);
-        return res.status(200).send({ message: "contact created" });
+        const newContact = await ContactModel.create(contact);
+        console.log("new contact", newContact);
+        return res.status(200).send({ message: "contact created", result: newContact });
     } catch (err) {
         console.log(err);
         res.status(500).send({ message: "Interval server error" });
@@ -31,10 +31,19 @@ export const createContact = async (req: Request, res: Response) => {
 
 export const updateContact = async (req: Request, res: Response) => {
     try {
-        const user = new ContactModel(req.body);
-        const updatedUser = await ContactModel.findOneAndUpdate({ email: user.email }, user, { new: true });
-        return res.status(200).send({ message: "User updated", updatedUser });
+        const { id } = req.query;
+        const { name, phone, countryCode } = req.body;
+        const contact = await ContactModel.findById(id).exec();
+        if (!contact) {
+            return res.status(401).send({ message: "Contact Not Found" });
+        }
+        contact.name = name;
+        contact.phone = phone;
+        contact.countryCode = countryCode;
+        await contact.save();
+        return res.status(200).send({ message: "User updated" });
     } catch (err) {
+        console.log(err);
         return res.status(500).send({ message: "Internal servor error" });
     }
 }
@@ -46,7 +55,7 @@ export const deleteContact = async (req: Request, res: Response) => {
         if (!validId) {
             res.status(400).send({ message: "User id is not valid" });
         }
-        await ContactModel.findByIdAndDelete(id);
+        await ContactModel.findByIdAndDelete(id).exec();
         return res.status(200).send({ message: "user deleted" });
     } catch (err) {
         console.log(err);

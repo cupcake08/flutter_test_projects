@@ -27,21 +27,26 @@ class NetworkManager {
       var headers = await getHeaders();
 
       http.Request request;
-      if (type == HttpMethod.post) {
-        request = http.Request('POST', uri);
-        if (body != null) {
+      switch (type) {
+        case HttpMethod.get:
+          request = http.Request('GET', uri);
+          break;
+        case HttpMethod.post:
+          request = http.Request('POST', uri);
+          if (body != null) {
+            request.body = json.encode(body);
+          }
+          break;
+        case HttpMethod.put:
+          request = http.Request('PUT', uri);
           request.body = json.encode(body);
-        }
-      } else if (type == HttpMethod.put) {
-        request = http.Request('PUT', uri);
-        request.body = json.encode(body);
-      } else if (type == HttpMethod.get) {
-        request = http.Request('GET', uri);
-      } else {
-        request = http.Request('DELETE', uri);
-        if (body != null) {
-          request.body = json.encode(body);
-        }
+          break;
+        case HttpMethod.delete:
+          request = http.Request('DELETE', uri);
+          if (body != null) {
+            request.body = json.encode(body);
+          }
+          break;
       }
       request.headers.addAll(headers);
 

@@ -1,3 +1,6 @@
+import 'package:contacts_app/screens/home_screen.dart';
+import 'package:contacts_app/services/user_services.dart';
+import 'package:contacts_app/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,17 +16,27 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-
-      // TODO: Add login logic here
-
+      final user = await UserServices.loginUser(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (user != null) {
+        await SharedPrefs.setUserData(user);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login Failed")));
+      }
       setState(() {
         _isLoading = false;
       });
+      if (user != null && mounted) {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const Home()));
+      }
     }
   }
 
@@ -40,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
+        centerTitle: true,
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -89,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: _isLoading ? null : _login,
+                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 10)),
                       child: _isLoading ? const CircularProgressIndicator() : const Text('Login'),
                     ),
                   ],

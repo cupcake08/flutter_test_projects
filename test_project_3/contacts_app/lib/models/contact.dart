@@ -8,17 +8,19 @@ List<Contact> getContactsFromJson(String body) {
   );
 }
 
+Contact getContactFromJson(String body) => Contact.fromJson(json.decode(body)['result']);
+
 class Contact {
   String name;
   int phone;
   int countryCode;
-  final String id;
+  final String? id;
 
   Contact({
-    required this.id,
     required this.name,
     required this.phone,
     required this.countryCode,
+    this.id,
   });
 
   factory Contact.fromJson(Map<String, dynamic> json) => Contact(
@@ -31,7 +33,6 @@ class Contact {
   Map<String, dynamic> toJson() => {
         "name": name,
         "phone": phone,
-        "_id": id,
         "countryCode": countryCode,
       };
 }
