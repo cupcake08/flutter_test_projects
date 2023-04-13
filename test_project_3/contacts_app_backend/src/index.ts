@@ -27,5 +27,7 @@ app.get("/contacts", authorization, getContacts);
 app.put("/updateContact", authorization, updateContact);
 app.delete("/deleteContact", authorization, deleteContact);
 
-connectToDB(DB_URI).then(() => app.listen(PORT, () => console.log(`Listening at port: ${PORT}`)));
+connectToDB(DB_URI)
+	.then(() => app.listen(PORT, () => console.log(`Listening at port: ${PORT}`)))
+	.catch((err) => console.log(err));
 

@@ -26,4 +26,6 @@ app.post("/createContact", auth_1.authorization, contacts_controller_1.createCon
 app.get("/contacts", auth_1.authorization, contacts_controller_1.getContacts);
 app.put("/updateContact", auth_1.authorization, contacts_controller_1.updateContact);
 app.delete("/deleteContact", auth_1.authorization, contacts_controller_1.deleteContact);
-(0, db_1.default)(DB_URI).then(() => app.listen(PORT, () => console.log(`Listening at port: ${PORT}`)));
+(0, db_1.default)(DB_URI)
+    .then(() => app.listen(PORT, () => console.log(`Listening at port: ${PORT}`)))
+    .catch((err) => console.log(err));
