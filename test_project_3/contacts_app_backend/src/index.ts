@@ -13,7 +13,6 @@ const DB_URI = process.env.MONGO as string;
 
 const app = express();
 
-connectToDB(DB_URI);
 
 app.use(express.json());
 app.use(cors());
@@ -28,4 +27,5 @@ app.get("/contacts", authorization, getContacts);
 app.put("/updateContact", authorization, updateContact);
 app.delete("/deleteContact", authorization, deleteContact);
 
-app.listen(PORT, () => console.log(`Listening at port: ${PORT}`));
+connectToDB(DB_URI).then(() => app.listen(PORT, () => console.log(`Listening at port: ${PORT}`)));
+

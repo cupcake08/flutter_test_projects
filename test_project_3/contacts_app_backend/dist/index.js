@@ -15,7 +15,6 @@ dotenv_1.default.config();
 const PORT = parseInt(process.env.PORT, 10);
 const DB_URI = process.env.MONGO;
 const app = (0, express_1.default)();
-(0, db_1.default)(DB_URI);
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 app.use((0, helmet_1.default)());
@@ -27,4 +26,4 @@ app.post("/createContact", auth_1.authorization, contacts_controller_1.createCon
 app.get("/contacts", auth_1.authorization, contacts_controller_1.getContacts);
 app.put("/updateContact", auth_1.authorization, contacts_controller_1.updateContact);
 app.delete("/deleteContact", auth_1.authorization, contacts_controller_1.deleteContact);
-app.listen(PORT, () => console.log(`Listening at port: ${PORT}`));
+(0, db_1.default)(DB_URI).then(() => app.listen(PORT, () => console.log(`Listening at port: ${PORT}`)));
