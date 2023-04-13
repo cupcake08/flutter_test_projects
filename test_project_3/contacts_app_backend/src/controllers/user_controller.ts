@@ -28,9 +28,11 @@ export const signup = async (req: Request, res: Response) => {
     try {
         const user = new UserModel(req.body);
         const foundUser = await user.save();
+        console.log(foundUser);
         const token = jwt.sign({ id: foundUser._id }, process.env.JWT_SECRET as string, {
             expiresIn: "2 days",
         });
+        console.log(token);
         return res.status(200).send({ message: "User created successfully", foundUser, authToken: token });
     } catch (error) {
         console.log(error);

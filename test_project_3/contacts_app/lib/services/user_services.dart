@@ -34,7 +34,7 @@ class UserServices {
       callback: ApiCallback(
         onCompleted: () => "signup request".log(),
         onSuccess: (res) => userR = userFromJson(res.body),
-        onError: (msg, _) => "Error: $msg".log(),
+        onError: (msg, code) => "Error: $msg Code: $code".log(),
       ),
     );
     return userR;
