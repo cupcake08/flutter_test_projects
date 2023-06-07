@@ -32,7 +32,7 @@ class IntroScreen extends StatelessWidget {
                     Text(
                       "Proud to Be A\nPet Adopter",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      style: Theme.of(context).textTheme.displaySmall!.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -80,6 +80,7 @@ class IntroScreen extends StatelessWidget {
                             child: Icon(
                               Icons.pets,
                               size: context.height * .03,
+                              color: const Color(0xFFFCAB4C),
                             ),
                           ),
                           SizedBox(width: context.width * .015),

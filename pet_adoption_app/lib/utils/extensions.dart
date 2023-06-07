@@ -24,3 +24,14 @@ extension BuildContextX on BuildContext {
     );
   }
 }
+
+extension DurationX on num {
+  Duration get ms => Duration(milliseconds: toInt());
+  Duration get s => Duration(seconds: toInt());
+  Duration get m => Duration(minutes: toInt());
+  Duration get h => Duration(hours: toInt());
+  Duration get days => Duration(days: toInt());
+  Duration get weeks => Duration(days: toInt() * 7);
+  Duration get months => Duration(days: toInt() * 30);
+  Duration get years => Duration(days: toInt() * 365);
+}

@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         textTheme: GoogleFonts.oswaldTextTheme(),
       ),
-      home: const IntroScreen(),
+      home: const HomeScreen(),
     );
   }
 }
