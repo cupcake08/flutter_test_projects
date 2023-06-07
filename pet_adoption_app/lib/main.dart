@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:pet_adoption_app/screens/screens.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,12 +12,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Pet Adoption App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        textTheme: GoogleFonts.oswaldTextTheme(),
       ),
-      home: const MyHomePage(title: 'Pet Adoption App'),
+      home: const IntroScreen(),
     );
   }
 }
@@ -62,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
