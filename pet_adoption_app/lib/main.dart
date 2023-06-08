@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pet_adoption_app/screens/screens.dart';
+import 'package:pet_adoption_app/utils/app_init.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+import 'providers/providers.dart';
+
+Future<void> main() async {
+  await AppInit.init();
   runApp(const MyApp());
 }
 
@@ -11,14 +16,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Pet Adoption App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        textTheme: GoogleFonts.oswaldTextTheme(),
+    AppInit.cacheAssetImages(context);
+    AppInit.preCacheAllImages(context);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PetsNotifier()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Pet Adoption App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          textTheme: GoogleFonts.oswaldTextTheme(),
+        ),
+        home: const IntroScreen(),
       ),
-      home: const HomeScreen(),
     );
   }
 }
