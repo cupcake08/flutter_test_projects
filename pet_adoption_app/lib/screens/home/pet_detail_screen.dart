@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:pet_adoption_app/animations/heart_animation.dart';
 import 'package:pet_adoption_app/models/pet.dart';
+import 'package:pet_adoption_app/screens/home/image_view.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
 
 class PetDetailScreen extends StatefulWidget {
@@ -23,7 +26,6 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
       duration: 800.ms,
     );
     _animationController.forward();
-    AppInit.prefs.clear();
   }
 
   @override
@@ -39,15 +41,32 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Hero(
-                  tag: "pet${widget.index}",
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.pet.image,
-                      fit: BoxFit.cover,
-                      height: context.height * .45,
-                      width: context.width,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        transitionDuration: 400.ms,
+                        pageBuilder: (_, __, ___) => ImageViewScreen(
+                          imageUrl: widget.pet.image,
+                          index: widget.index,
+                        ),
+                        transitionsBuilder: (_, animation, __, child) => FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: "pet${widget.index}",
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.pet.image,
+                        fit: BoxFit.cover,
+                        height: context.height * .45,
+                        width: context.width,
+                      ),
                     ),
                   ),
                 ),
@@ -76,10 +95,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
           SlideTransition(
             position: Tween(begin: const Offset(0, 2), end: Offset.zero).animate(curvedAnimation),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _adoptionButton(),
-                _likeButton(),
+                Expanded(child: _adoptionButton()),
+                const HeartAnimation(),
+                SizedBox(width: context.width * .05),
               ],
             ),
           ),
@@ -89,28 +108,20 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
     );
   }
 
-  _likeButton() {
-    return const Icon(
-      Icons.favorite_outline_rounded,
-      size: 35,
-    );
-  }
-
   _adoptionButton() {
-    final spacer = SizedBox(width: context.width * .02);
+    final spacer = SizedBox(width: context.height * .008);
     return InkWell(
-      onTap: () {},
+      onTap: _adoptPetAction,
       child: Container(
         height: context.height * .06,
-        width: context.width * .7,
+        margin: EdgeInsets.symmetric(horizontal: context.width * .05),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(context.height * .04),
           color: AppColor.orange,
         ),
-        padding: EdgeInsets.symmetric(horizontal: context.width * .05),
         child: Row(
           children: [
-            spacer,
+            SizedBox(width: context.width * .05),
             Text(
               "Adopt Pet",
               style: Theme.of(context).textTheme.headlineSmall!.copyWith(
@@ -131,6 +142,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
                 color: AppColor.orange,
               ),
             ),
+            spacer,
           ],
         ),
       ),
@@ -209,6 +221,65 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
     );
   }
 
+  _adoptPetAction() {
+    return showGeneralDialog(
+      context: context,
+      transitionBuilder: (context, animation, secondaryAnimation, child) => ScaleTransition(
+        scale: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutBack,
+        ),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LottieBuilder.asset(
+                "assets/adopt_pet_lottie.json",
+                repeat: false,
+                height: context.height * .3,
+              ),
+              Text(
+                "Thank you for adopting\n${widget.pet.name}!",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 20),
+              // back to home Elevated button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                ),
+                child: Text(
+                  "Back to Home",
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Roboto',
+                        color: Colors.white,
+                      ),
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   IconData _getIconBasedOnGender() {
     switch (widget.pet.gender) {
       case Gender.male:
@@ -233,7 +304,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
         children: [
           _petDetailSub("Age", _calculateAgeBasedOnDOB()),
           CustomPaint(
-            painter: CustomVerticalDivider(),
+            painter: _CustomVerticalDivider(),
             size: Size(1, containerHeight * .6),
           ),
           _petDetailSub("Weight", "4.5 Kg"),
@@ -293,7 +364,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
   }
 }
 
-class CustomVerticalDivider extends CustomPainter {
+class _CustomVerticalDivider extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()

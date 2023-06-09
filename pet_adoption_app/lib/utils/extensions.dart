@@ -15,11 +15,16 @@ extension BuildContextX on BuildContext {
   void showSnackBar(String message) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
+        backgroundColor: Theme.of(this).colorScheme.primary,
+        margin: const EdgeInsets.all(8),
+        behavior: SnackBarBehavior.floating,
         content: Text(message),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
         showCloseIcon: true,
+        duration: 1.s,
+        closeIconColor: Colors.white,
       ),
     );
   }

@@ -362,8 +362,16 @@ class PetListItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => PetDetailScreen(index: index, pet: pet),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => PetDetailScreen(pet: pet, index: index),
+            transitionDuration: 400.ms,
+            reverseTransitionDuration: 200.ms,
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
           ),
         );
       },
@@ -425,6 +433,7 @@ class PetListItemWidget extends StatelessWidget {
                 Icon(
                   _getPetIconBasedOnGender(),
                   color: AppColor.orange,
+                  size: 30,
                 ),
               ],
             ),
