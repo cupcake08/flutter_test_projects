@@ -3,17 +3,42 @@ import 'package:isar/isar.dart';
 import 'package:pet_adoption_app/models/pet.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
 
-class PetsNotifier extends ChangeNotifier {
+final class PetsNotifier extends ChangeNotifier {
   int _currentCategorySelectedIndex = 0;
   int get currentCategorySelectedIndex => _currentCategorySelectedIndex;
 
   bool _gettingPets = false;
   bool get gettingPets => _gettingPets;
 
-  List<Pet> _cats = [];
-  List<Pet> _dogs = [];
-  List<Pet> _birds = [];
-  List<Pet> _fishes = [];
+  bool _gettingMorePets = false;
+  bool get gettingMorePets => _gettingMorePets;
+
+  bool _hasMoreCats = true;
+  bool get hasMoreCats => _hasMoreCats;
+
+  bool _hasMoreDogs = true;
+  bool get hasMoreDogs => _hasMoreDogs;
+
+  bool _hasMoreBirds = true;
+  bool get hasMoreBirds => _hasMoreBirds;
+
+  bool _hasMoreFishes = true;
+  bool get hasMoreFishes => _hasMoreFishes;
+
+  bool _resetTheAnimationController = false;
+  bool get resetTheAnimationController => _resetTheAnimationController;
+
+  set setResetTheAnimationController(bool value) => _resetTheAnimationController = value;
+
+  set setGettingMorePets(bool value) {
+    _gettingMorePets = value;
+    notifyListeners();
+  }
+
+  final List<Pet> _cats = [];
+  final List<Pet> _dogs = [];
+  final List<Pet> _birds = [];
+  final List<Pet> _fishes = [];
 
   List<Pet> get cats => _cats;
   List<Pet> get dogs => _dogs;
@@ -27,51 +52,77 @@ class PetsNotifier extends ChangeNotifier {
 
   Future<void> setCurrentCategorySelectedIndex(int index, {bool notify = true}) async {
     _currentCategorySelectedIndex = index;
+    _resetTheAnimationController = true;
     setGettingPets(true, notify: notify);
     switch (index) {
       case 0:
         "getting cats".log();
-        await getCats(0);
+        if (_cats.isEmpty) await getPets(0, PetType.cat);
       case 1:
         "getting dogs".log();
-        await getDogs(0);
+        if (_dogs.isEmpty) await getPets(0, PetType.dog);
       case 2:
         "getting birds".log();
-        await getBirds(0);
+        if (_birds.isEmpty) await getPets(0, PetType.bird);
       case 3:
         "getting fishes".log();
-        await getFishes(0);
+        if (_fishes.isEmpty) await getPets(0, PetType.fish);
       default:
         "getting cats".log();
-        await getCats(0);
+        await getPets(0, PetType.cat);
     }
     setGettingPets(false);
   }
 
-  Future<void> getCats(int skip) async {
-    assert(AppInit.isar != null, "Isar is not initialized");
-    _cats = await AppInit.isar!.pets.where().typeEqualTo(PetType.cat).offset(skip).limit(5).findAll();
+  Future<void> getPetsPagination(int skip) async {
+    final index = _currentCategorySelectedIndex;
+    _gettingMorePets = true;
+    switch (index) {
+      case 0:
+        "getting cats".log();
+        await getPets(skip, PetType.cat);
+      case 1:
+        "getting dogs".log();
+        await getPets(skip, PetType.dog);
+      case 2:
+        "getting birds".log();
+        await getPets(skip, PetType.bird);
+      case 3:
+        "getting fishes".log();
+        await getPets(skip, PetType.fish);
+      default:
+        "getting cats".log();
+        await getPets(skip, PetType.cat);
+    }
+    _gettingMorePets = false;
+    notifyListeners();
   }
 
-  // find dogs
-  Future<void> getDogs(int skip) async {
+  Future<List<Pet>> getPetsListBySearch(String name) async {
     assert(AppInit.isar != null, "Isar is not initialized");
-    _dogs = await AppInit.isar!.pets.where().typeEqualTo(PetType.dog).offset(skip).limit(5).findAll();
+    return await AppInit.isar!.pets.where().nameEqualTo(name).findAll();
   }
 
-  // find birds
-  Future<void> getBirds(int skip) async {
+  Future<void> getPets(int skip, PetType type) async {
     assert(AppInit.isar != null, "Isar is not initialized");
-    _birds = await AppInit.isar!.pets.where().typeEqualTo(PetType.bird).offset(skip).limit(5).findAll();
+    final ps = await AppInit.isar!.pets.where().typeEqualTo(type).offset(skip).limit(5).findAll();
+    switch (type) {
+      case PetType.cat:
+        if (ps.isEmpty) _hasMoreCats = false;
+        _cats.addAll(ps);
+      case PetType.dog:
+        if (ps.isEmpty) _hasMoreDogs = false;
+        _dogs.addAll(ps);
+      case PetType.bird:
+        if (ps.isEmpty) _hasMoreBirds = false;
+        _birds.addAll(ps);
+      case PetType.fish:
+        if (ps.isEmpty) _hasMoreFishes = false;
+        _fishes.addAll(ps);
+    }
   }
 
-  // find fishes
-  Future<void> getFishes(int skip) async {
-    assert(AppInit.isar != null, "Isar is not initialized");
-    _fishes = await AppInit.isar!.pets.where().typeEqualTo(PetType.fish).offset(skip).limit(5).findAll();
-  }
-
-  List<Pet> getPetList(int index, int skip) {
+  List<Pet> getPetList(int index) {
     switch (index) {
       case 0:
         "getting cats list".log();

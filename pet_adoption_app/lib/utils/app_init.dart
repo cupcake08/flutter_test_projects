@@ -12,7 +12,10 @@ class AppInit {
 
   static late final SharedPreferences prefs;
 
+  static const String themeModeVar = 'ThemeMode';
+
   static void cacheAssetImages(BuildContext context) {
+    precacheImage(const AssetImage("assets/7953025-min.jpg"), context);
     precacheImage(const AssetImage("assets/cat-min.jpg"), context);
     precacheImage(const AssetImage("assets/dog-min.jpg"), context);
     precacheImage(const AssetImage("assets/fish-min.jpg"), context);
@@ -28,7 +31,6 @@ class AppInit {
     }
   }
 
-  // initialize shared preferences
   static Future<void> initPrefs() async {
     prefs = await SharedPreferences.getInstance();
   }
@@ -72,5 +74,16 @@ class AppInit {
     for (final img in fishImages) {
       CachedNetworkImageProvider(img);
     }
+  }
+
+  static ThemeMode intialThemeMode() {
+    return ThemeMode.values.firstWhere(
+      (e) => e.toString() == prefs.getString(themeModeVar),
+      orElse: () => ThemeMode.light,
+    );
+  }
+
+  static void setThemeMode(ThemeMode themeMode) {
+    prefs.setString(themeModeVar, themeMode.toString());
   }
 }

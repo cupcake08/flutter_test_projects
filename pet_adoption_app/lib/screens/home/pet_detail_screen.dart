@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pet_adoption_app/animations/heart_animation.dart';
 import 'package:pet_adoption_app/models/pet.dart';
+import 'package:pet_adoption_app/providers/providers.dart';
 import 'package:pet_adoption_app/screens/home/image_view.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 class PetDetailScreen extends StatefulWidget {
   const PetDetailScreen({super.key, required this.index, required this.pet});
@@ -17,10 +19,15 @@ class PetDetailScreen extends StatefulWidget {
 
 class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
+  late final bool isDarkMode;
+
+  late final ValueNotifier<bool> _isAdopted;
 
   @override
   void initState() {
     super.initState();
+    _isAdopted = ValueNotifier(widget.pet.isAdopted);
+    isDarkMode = context.read<ThemeProvider>().themeMode == ThemeMode.dark;
     _animationController = AnimationController(
       vsync: this,
       duration: 800.ms,
@@ -110,43 +117,47 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
 
   _adoptionButton() {
     final spacer = SizedBox(width: context.height * .008);
-    return InkWell(
-      onTap: _adoptPetAction,
-      child: Container(
-        height: context.height * .06,
-        margin: EdgeInsets.symmetric(horizontal: context.width * .05),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(context.height * .04),
-          color: AppColor.orange,
-        ),
-        child: Row(
-          children: [
-            SizedBox(width: context.width * .05),
-            Text(
-              "Adopt Pet",
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'Roboto',
+    return ValueListenableBuilder(
+        valueListenable: _isAdopted,
+        builder: (context, isAdopted, _) {
+          return InkWell(
+            onTap: isAdopted ? null : _adoptPetAction,
+            child: Container(
+              height: context.height * .06,
+              margin: EdgeInsets.symmetric(horizontal: context.width * .05),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(context.height * .04),
+                color: isAdopted ? Colors.grey : AppColor.orange,
+              ),
+              child: Row(
+                children: [
+                  SizedBox(width: context.width * .05),
+                  Text(
+                    isAdopted ? "Already Adopted!" : "Adopt Pet",
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: 'Roboto',
+                        ),
                   ),
-            ),
-            const Spacer(),
-            Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
+                  const Spacer(),
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.all(context.height * .01),
+                    child: const Icon(
+                      Icons.pets,
+                      color: AppColor.orange,
+                    ),
+                  ),
+                  spacer,
+                ],
               ),
-              padding: EdgeInsets.all(context.height * .01),
-              child: const Icon(
-                Icons.pets,
-                color: AppColor.orange,
-              ),
             ),
-            spacer,
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
   _descriptionWidget() {
@@ -169,14 +180,14 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
                 ),
                 Text(
                   "Owner",
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.grey),
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(color: isDarkMode ? Colors.grey.shade300 : Colors.grey),
                 ),
               ],
             ),
             const Spacer(),
             Text(
               "8 Feb. 2023",
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.grey),
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(color: isDarkMode ? Colors.grey.shade300 : Colors.grey),
             ),
           ],
         ),
@@ -201,12 +212,14 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
                 widget.pet.name,
                 style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: isDarkMode ? Colors.white : Colors.black,
                     ),
               ),
               Text(
                 widget.pet.breed,
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.grey),
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: isDarkMode ? Colors.grey.shade300 : Colors.grey,
+                    ),
               ),
             ],
           ),
@@ -222,6 +235,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
   }
 
   _adoptPetAction() {
+    _isAdopted.value = true;
     return showGeneralDialog(
       context: context,
       transitionBuilder: (context, animation, secondaryAnimation, child) => ScaleTransition(
@@ -293,7 +307,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
     final containerHeight = context.height * .08;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.amber.shade200,
+        color: isDarkMode ? Colors.amber : Colors.amber.shade200,
         borderRadius: BorderRadius.circular(context.height * .02),
       ),
       height: containerHeight,
@@ -332,7 +346,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
         ),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.grey),
+          style: Theme.of(context).textTheme.titleSmall!.copyWith(color: isDarkMode ? Colors.grey.shade100 : Colors.grey),
         ),
       ],
     );
@@ -342,7 +356,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
     const x =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, justo ac ultrices ultricies, nisl nunc ultrices dolor, quis aliquam nisl nunc ut nisl. Sed euismod, justo ac ultrices ultricies, nisl nunc ultrices dolor, quis aliquam nisl nunc ut nisl.";
 
-    final style = Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.grey);
+    final style = Theme.of(context).textTheme.titleSmall!.copyWith(color: isDarkMode ? Colors.grey.shade200 : Colors.grey);
     if (x.length > 130) {
       return Text.rich(
         TextSpan(
@@ -351,7 +365,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
           children: [
             TextSpan(
               text: "...Read More",
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : null,
+                  ),
             ),
           ],
         ),

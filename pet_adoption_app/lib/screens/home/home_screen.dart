@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pet_adoption_app/models/pet.dart';
-import 'package:pet_adoption_app/providers/pets_notifier.dart';
+import 'package:pet_adoption_app/providers/providers.dart';
 import 'package:pet_adoption_app/screens/home/pet_detail_screen.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final ValueNotifier<bool> _showFloatingActionButton;
   late final AnimationController _animationController;
   late final AnimationController _listController;
+
+  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -44,6 +46,39 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_scrollController.offset <= _scrollController.position.minScrollExtent) {
       _showFloatingActionButton.value = false;
     }
+
+    // pagination
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent) {
+      final provider = context.read<PetsNotifier>();
+      bool hasMore = false;
+      int skip = 0;
+
+      switch (provider.currentCategorySelectedIndex) {
+        case 0:
+          hasMore = provider.hasMoreCats;
+          skip = provider.cats.length;
+        case 1:
+          hasMore = provider.hasMoreDogs;
+          skip = provider.dogs.length;
+        case 2:
+          hasMore = provider.hasMoreBirds;
+          skip = provider.birds.length;
+        case 3:
+          hasMore = provider.hasMoreFishes;
+          skip = provider.fishes.length;
+      }
+
+      if (!provider.gettingMorePets && hasMore) {
+        provider.setResetTheAnimationController = false;
+        provider.getPetsPagination(skip);
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    isDarkMode = context.read<ThemeProvider>().themeMode == ThemeMode.dark;
+    super.didChangeDependencies();
   }
 
   @override
@@ -74,7 +109,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: AppBar(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
-              title: const Text("HOME", style: TextStyle(color: Colors.black)),
+              title: Text(
+                "HOME",
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               actions: _appBarActions(),
             ),
           ),
@@ -85,7 +123,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // search bar
                 SlideTransition(
                   position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
                     CurvedAnimation(
@@ -95,21 +135,52 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                   child: FadeTransition(
                     opacity: _animationController,
-                    child: Row(
-                      children: [
-                        Text(
-                          "Categories",
-                          style: Theme.of(context).textTheme.titleLarge,
+                    child: Container(
+                      height: context.height * .06,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: InkWell(
+                        onTap: () {},
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            Icon(
+                              Icons.search,
+                              color: Theme.of(context).iconTheme.color,
+                            ),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: "Search For Pets",
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const Spacer(),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text("See All >>"),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
+                SlideTransition(
+                  position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+                    CurvedAnimation(
+                      parent: _animationController,
+                      curve: Curves.ease,
+                    ),
+                  ),
+                  child: FadeTransition(
+                    opacity: _animationController,
+                    child: Text(
+                      "Categories",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                ),
+                SizedBox(height: context.height * .01),
                 const CategorySelectionWidget(),
                 const Divider(),
                 _loadItems(),
@@ -123,14 +194,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   _loadItems() {
-    return Selector<PetsNotifier, (int, bool)>(
-      selector: (p0, p1) => (p1.currentCategorySelectedIndex, p1.gettingPets),
+    return Selector<PetsNotifier, (int, bool, int)>(
+      selector: (p0, p1) => (
+        p1.currentCategorySelectedIndex,
+        p1.gettingPets,
+        _getTheLength(),
+      ),
       builder: (context, data, _) {
         if (data.$2) {
           return const Center(child: CircularProgressIndicator());
         }
-        final pets = context.read<PetsNotifier>().getPetList(data.$1, 0);
-        _listController.reset();
+        final provider = context.read<PetsNotifier>();
+        final pets = provider.getPetList(data.$1);
+        if (provider.resetTheAnimationController) {
+          _listController.reset();
+        }
         _listController.forward();
         return ListView.builder(
           itemCount: pets.length,
@@ -197,13 +275,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   _appBarActions() {
     return [
       IconButton(
-        onPressed: () {},
-        icon: const Icon(
+        onPressed: () {
+          final provider = context.read<ThemeProvider>();
+          AppInit.setThemeMode(provider.themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
+          provider.toggleTheme(provider.themeMode == ThemeMode.dark ? false : true);
+        },
+        icon: Icon(
           Icons.switch_access_shortcut,
-          color: Colors.black,
+          color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
     ];
+  }
+
+  _getTheLength() {
+    final provider = context.read<PetsNotifier>();
+    switch (provider.currentCategorySelectedIndex) {
+      case 0:
+        return provider.cats.length;
+      case 1:
+        return provider.dogs.length;
+      case 2:
+        return provider.birds.length;
+      case 3:
+        return provider.fishes.length;
+      default:
+        return 0;
+    }
   }
 }
 
@@ -380,6 +478,7 @@ class PetListItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.grey.shade300),
+          color: Colors.white,
         ),
         margin: const EdgeInsets.symmetric(vertical: 10),
         child: Column(
