@@ -18,13 +18,16 @@ extension BuildContextX on BuildContext {
         backgroundColor: Theme.of(this).colorScheme.inversePrimary,
         margin: const EdgeInsets.all(8),
         behavior: SnackBarBehavior.floating,
-        content: Text(message),
+        content: Text(
+          message,
+          style: Theme.of(this).textTheme.bodyMedium,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
         showCloseIcon: true,
         duration: 1.s,
-        closeIconColor: Colors.white,
+        closeIconColor: Theme.of(this).colorScheme.primary,
       ),
     );
   }
