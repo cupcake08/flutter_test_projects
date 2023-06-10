@@ -3,12 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 sealed class AppColor {
   static const Color orange = Color(0xFFFCAB4C);
-
-  /// Heart animation color.
   static const Color iconColor = Color.fromARGB(255, 205, 81, 36);
 }
 
-class Styles {
+sealed class Styles {
   static ThemeData themeData(ThemeMode themeMode) {
     return ThemeData(
       colorScheme: themeMode == ThemeMode.dark

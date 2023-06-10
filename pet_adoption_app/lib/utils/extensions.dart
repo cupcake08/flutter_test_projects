@@ -15,7 +15,7 @@ extension BuildContextX on BuildContext {
   void showSnackBar(String message) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
-        backgroundColor: Theme.of(this).colorScheme.primary,
+        backgroundColor: Theme.of(this).colorScheme.inversePrimary,
         margin: const EdgeInsets.all(8),
         behavior: SnackBarBehavior.floating,
         content: Text(message),

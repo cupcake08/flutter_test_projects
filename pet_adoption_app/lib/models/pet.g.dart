@@ -89,7 +89,7 @@ const PetSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'name',
-          type: IndexType.hash,
+          type: IndexType.value,
           caseSensitive: false,
         )
       ],
@@ -249,6 +249,14 @@ extension PetQueryWhereSort on QueryBuilder<Pet, Pet, QWhere> {
     });
   }
 
+  QueryBuilder<Pet, Pet, QAfterWhere> anyName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'name'),
+      );
+    });
+  }
+
   QueryBuilder<Pet, Pet, QAfterWhere> anyType() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -362,6 +370,96 @@ extension PetQueryWhere on QueryBuilder<Pet, Pet, QWhereClause> {
               lower: [],
               upper: [name],
               includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<Pet, Pet, QAfterWhereClause> nameGreaterThan(
+    String name, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'name',
+        lower: [name],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<Pet, Pet, QAfterWhereClause> nameLessThan(
+    String name, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'name',
+        lower: [],
+        upper: [name],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<Pet, Pet, QAfterWhereClause> nameBetween(
+    String lowerName,
+    String upperName, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'name',
+        lower: [lowerName],
+        includeLower: includeLower,
+        upper: [upperName],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Pet, Pet, QAfterWhereClause> nameStartsWith(String NamePrefix) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'name',
+        lower: [NamePrefix],
+        upper: ['$NamePrefix\u{FFFFF}'],
+      ));
+    });
+  }
+
+  QueryBuilder<Pet, Pet, QAfterWhereClause> nameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'name',
+        value: [''],
+      ));
+    });
+  }
+
+  QueryBuilder<Pet, Pet, QAfterWhereClause> nameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'name',
+              upper: [''],
+            ))
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'name',
+              lower: [''],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'name',
+              lower: [''],
+            ))
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'name',
+              upper: [''],
             ));
       }
     });

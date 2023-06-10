@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pet_adoption_app/providers/providers.dart';
 import 'package:pet_adoption_app/screens/screens.dart';
-import 'package:pet_adoption_app/utils/app_init.dart';
-import 'package:pet_adoption_app/utils/theme/app_colors.dart';
+import 'package:pet_adoption_app/utils/utils.dart';
 import 'package:provider/provider.dart';
-
-import 'providers/providers.dart';
 
 Future<void> main() async {
   await AppInit.init();
@@ -34,7 +32,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Pet Adoption App',
             theme: Styles.themeData(themeProvider.themeMode),
-            home: const IntroScreen(),
+            home: AppInit.canIFillDataToIsar() ? const IntroScreen() : const HomeScreen(),
           );
         },
       ),

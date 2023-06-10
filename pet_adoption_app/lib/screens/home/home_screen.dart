@@ -1,15 +1,13 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:pet_adoption_app/models/pet.dart';
 import 'package:pet_adoption_app/providers/providers.dart';
-import 'package:pet_adoption_app/screens/home/pet_detail_screen.dart';
+import 'package:pet_adoption_app/screens/widgets/widgets.dart';
+import 'package:pet_adoption_app/utils/delegates/search_delagate.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.animationController});
-  final AnimationController animationController;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -91,104 +89,107 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        widget.animationController.reset();
-        return true;
-      },
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size(context.width, kToolbarHeight),
-          child: SlideTransition(
-            position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
-              CurvedAnimation(
-                parent: _animationController,
-                curve: Curves.easeOut,
-              ),
-            ),
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              title: Text(
-                "HOME",
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              actions: _appBarActions(),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size(context.width, kToolbarHeight),
+        child: SlideTransition(
+          position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeOut,
             ),
           ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            title: Text(
+              "HOME",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            actions: _appBarActions(),
+          ),
         ),
-        body: SingleChildScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _searchSection(),
+              SlideTransition(
+                position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+                  CurvedAnimation(
+                    parent: _animationController,
+                    curve: Curves.ease,
+                  ),
+                ),
+                child: FadeTransition(
+                  opacity: _animationController,
+                  child: Text(
+                    "Categories",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+              ),
+              SizedBox(height: context.height * .01),
+              const CategorySelectionWidget(),
+              const Divider(),
+              _loadItems(),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: _floatingActionButton(),
+    );
+  }
+
+  _searchSection() {
+    return SlideTransition(
+      position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.ease,
+        ),
+      ),
+      child: FadeTransition(
+        opacity: _animationController,
+        child: Container(
+          height: context.height * .06,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: InkWell(
+            onTap: () {
+              showSearch(
+                context: context,
+                delegate: PetSearchDelegate(),
+              );
+            },
+            child: Row(
               children: [
-                // search bar
-                SlideTransition(
-                  position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
-                    CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.ease,
-                    ),
-                  ),
-                  child: FadeTransition(
-                    opacity: _animationController,
-                    child: Container(
-                      height: context.height * .06,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        onTap: () {},
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 16),
-                            Icon(
-                              Icons.search,
-                              color: Theme.of(context).iconTheme.color,
-                            ),
-                            const SizedBox(width: 8),
-                            const Expanded(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: "Search For Pets",
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                const SizedBox(width: 16),
+                Icon(
+                  Icons.search,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: TextField(
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      hintText: "Search For Pets",
+                      border: InputBorder.none,
                     ),
                   ),
                 ),
-                SlideTransition(
-                  position: Tween(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
-                    CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.ease,
-                    ),
-                  ),
-                  child: FadeTransition(
-                    opacity: _animationController,
-                    child: Text(
-                      "Categories",
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                ),
-                SizedBox(height: context.height * .01),
-                const CategorySelectionWidget(),
-                const Divider(),
-                _loadItems(),
               ],
             ),
           ),
         ),
-        floatingActionButton: _floatingActionButton(),
       ),
     );
   }
@@ -229,10 +230,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               child: FadeTransition(
                 opacity: _listController,
-                child: PetListItemWidget(
-                  index: index,
-                  pet: pets[index],
-                ),
+                child: PetListItemWidget(pet: pets[index]),
               ),
             );
           },
@@ -279,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           final provider = context.read<ThemeProvider>();
           AppInit.setThemeMode(provider.themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
           provider.toggleTheme(provider.themeMode == ThemeMode.dark ? false : true);
+          context.showSnackBar(provider.themeMode == ThemeMode.dark ? "Dark Mode" : "Light Mode");
         },
         icon: Icon(
           Icons.switch_access_shortcut,
@@ -396,158 +395,5 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> with 
         child: child,
       ),
     );
-  }
-}
-
-class CategoryWidget extends StatelessWidget {
-  const CategoryWidget({
-    super.key,
-    required this.isSelected,
-    required this.image,
-    required this.title,
-    required this.index,
-  });
-  final String image;
-  final bool isSelected;
-  final String title;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    const double radius = 8.0;
-    const borderShift = 3.0;
-    return InkWell(
-      onTap: () {
-        context.read<PetsNotifier>().setCurrentCategorySelectedIndex(index);
-      },
-      child: Column(
-        children: [
-          AnimatedContainer(
-            duration: 100.ms,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radius),
-              border: Border.all(color: Colors.deepPurple, width: isSelected ? borderShift : 1.0),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(isSelected ? radius - borderShift : radius - 1),
-              child: Image.asset(
-                image,
-                fit: BoxFit.cover,
-                height: context.width / 5,
-                width: context.width / 5,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(title),
-        ],
-      ),
-    );
-  }
-}
-
-class PetListItemWidget extends StatelessWidget {
-  const PetListItemWidget({
-    super.key,
-    required this.index,
-    required this.pet,
-  });
-  final int index;
-  final Pet pet;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => PetDetailScreen(pet: pet, index: index),
-            transitionDuration: 400.ms,
-            reverseTransitionDuration: 200.ms,
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade300),
-          color: Colors.white,
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        child: Column(
-          children: [
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(0),
-              elevation: 5,
-              child: Hero(
-                tag: "pet$index",
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: CachedNetworkImage(
-                    imageUrl: pet.image,
-                    fit: BoxFit.cover,
-                    height: context.height / 3,
-                    width: context.width,
-                    placeholder: (context, url) => const Icon(
-                      Icons.pets,
-                      size: 50,
-                      color: AppColor.orange,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pet.name,
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                      ),
-                      Text(
-                        pet.breed,
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  _getPetIconBasedOnGender(),
-                  color: AppColor.orange,
-                  size: 30,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getPetIconBasedOnGender() {
-    switch (pet.gender) {
-      case Gender.male:
-        return Icons.male_rounded;
-      case Gender.female:
-        return Icons.female_rounded;
-    }
   }
 }

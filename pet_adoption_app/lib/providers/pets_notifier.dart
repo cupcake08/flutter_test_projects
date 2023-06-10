@@ -28,6 +28,9 @@ final class PetsNotifier extends ChangeNotifier {
   bool _resetTheAnimationController = false;
   bool get resetTheAnimationController => _resetTheAnimationController;
 
+  bool _searchingPets = false;
+  bool get searchingPets => _searchingPets;
+
   set setResetTheAnimationController(bool value) => _resetTheAnimationController = value;
 
   set setGettingMorePets(bool value) {
@@ -35,15 +38,22 @@ final class PetsNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSearchingPets(bool value, {bool notify = true}) {
+    _searchingPets = value;
+    if (notify) notifyListeners();
+  }
+
   final List<Pet> _cats = [];
   final List<Pet> _dogs = [];
   final List<Pet> _birds = [];
   final List<Pet> _fishes = [];
+  List<Pet> _searchPets = [];
 
   List<Pet> get cats => _cats;
   List<Pet> get dogs => _dogs;
   List<Pet> get birds => _birds;
   List<Pet> get fishes => _fishes;
+  List<Pet> get searchPets => _searchPets;
 
   void setGettingPets(bool value, {bool notify = true}) {
     _gettingPets = value;
@@ -56,19 +66,14 @@ final class PetsNotifier extends ChangeNotifier {
     setGettingPets(true, notify: notify);
     switch (index) {
       case 0:
-        "getting cats".log();
         if (_cats.isEmpty) await getPets(0, PetType.cat);
       case 1:
-        "getting dogs".log();
         if (_dogs.isEmpty) await getPets(0, PetType.dog);
       case 2:
-        "getting birds".log();
         if (_birds.isEmpty) await getPets(0, PetType.bird);
       case 3:
-        "getting fishes".log();
         if (_fishes.isEmpty) await getPets(0, PetType.fish);
       default:
-        "getting cats".log();
         await getPets(0, PetType.cat);
     }
     setGettingPets(false);
@@ -79,28 +84,25 @@ final class PetsNotifier extends ChangeNotifier {
     _gettingMorePets = true;
     switch (index) {
       case 0:
-        "getting cats".log();
         await getPets(skip, PetType.cat);
       case 1:
-        "getting dogs".log();
         await getPets(skip, PetType.dog);
       case 2:
-        "getting birds".log();
         await getPets(skip, PetType.bird);
       case 3:
-        "getting fishes".log();
         await getPets(skip, PetType.fish);
       default:
-        "getting cats".log();
         await getPets(skip, PetType.cat);
     }
     _gettingMorePets = false;
     notifyListeners();
   }
 
-  Future<List<Pet>> getPetsListBySearch(String name) async {
+  Future<void> getPetsListBySearch(String name) async {
     assert(AppInit.isar != null, "Isar is not initialized");
-    return await AppInit.isar!.pets.where().nameEqualTo(name).findAll();
+    setSearchingPets(true, notify: false);
+    _searchPets = await AppInit.isar!.pets.where().nameStartsWith(name).limit(6).findAll();
+    setSearchingPets(false);
   }
 
   Future<void> getPets(int skip, PetType type) async {
@@ -125,19 +127,76 @@ final class PetsNotifier extends ChangeNotifier {
   List<Pet> getPetList(int index) {
     switch (index) {
       case 0:
-        "getting cats list".log();
         return _cats;
       case 1:
-        "getting dog list".log();
         return _dogs;
       case 2:
-        "getting birds list".log();
         return _birds;
       case 3:
-        "getting fishes list".log();
         return _fishes;
       default:
         return _cats;
     }
+  }
+
+  void markPetAsAdopted(Pet pet) async {
+    assert(AppInit.isar != null, "Isar is not initialized");
+    switch (pet.type) {
+      case PetType.cat:
+        int idx = _cats.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) {
+          _cats[idx].isAdopted = true;
+        }
+      case PetType.dog:
+        int idx = _dogs.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) {
+          _dogs[idx].isAdopted = true;
+        }
+      case PetType.bird:
+        int idx = _birds.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) _birds[idx].isAdopted = true;
+      case PetType.fish:
+        int idx = _fishes.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) _fishes[idx].isAdopted = true;
+    }
+    await AppInit.isar!.writeTxn(() async {
+      pet.isAdopted = true;
+      await AppInit.isar!.pets.put(pet);
+    });
+  }
+
+  void markPetAsFavorite(Pet pet) async {
+    assert(AppInit.isar != null, "Isar is not initialized");
+    bool succ = false;
+    switch (pet.type) {
+      case PetType.cat:
+        int idx = _cats.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) {
+          succ = true;
+          _cats[idx].isFavorite = !pet.isFavorite;
+        }
+      case PetType.dog:
+        int idx = _dogs.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) {
+          succ = true;
+          _dogs[idx].isFavorite = !pet.isFavorite;
+        }
+      case PetType.bird:
+        int idx = _birds.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) {
+          succ = true;
+          _birds[idx].isFavorite = !pet.isFavorite;
+        }
+      case PetType.fish:
+        int idx = _fishes.indexWhere((element) => element.id == pet.id);
+        if (idx != -1) {
+          succ = true;
+          _fishes[idx].isFavorite = !pet.isFavorite;
+        }
+    }
+    await AppInit.isar!.writeTxn(() async {
+      pet.isFavorite = succ ? pet.isFavorite : !pet.isFavorite;
+      await AppInit.isar!.pets.put(pet);
+    });
   }
 }

@@ -7,7 +7,7 @@ part 'pet.g.dart';
 class Pet {
   Id id = Isar.autoIncrement;
 
-  @Index(caseSensitive: false)
+  @Index(caseSensitive: false, type: IndexType.value)
   late String name;
 
   late String breed;

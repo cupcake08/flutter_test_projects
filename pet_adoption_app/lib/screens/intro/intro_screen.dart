@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_adoption_app/providers/providers.dart';
-import 'package:pet_adoption_app/screens/home/home.dart';
+import 'package:pet_adoption_app/screens/screens.dart';
 import 'package:pet_adoption_app/utils/extensions.dart';
 import 'package:provider/provider.dart';
 
@@ -90,11 +90,9 @@ class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStat
             _animationController.forward();
             await Future.delayed(300.ms);
             if (!mounted) return;
-            Navigator.of(context).push(
+            Navigator.of(context).pushReplacement(
               PageRouteBuilder(
-                pageBuilder: (_, __, ___) => HomeScreen(
-                  animationController: _animationController,
-                ),
+                pageBuilder: (_, __, ___) => const HomeScreen(),
                 transitionsBuilder: (_, animation, __, child) => FadeTransition(
                   opacity: animation,
                   child: child,

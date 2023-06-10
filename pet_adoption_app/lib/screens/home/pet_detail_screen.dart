@@ -4,13 +4,12 @@ import 'package:lottie/lottie.dart';
 import 'package:pet_adoption_app/animations/heart_animation.dart';
 import 'package:pet_adoption_app/models/pet.dart';
 import 'package:pet_adoption_app/providers/providers.dart';
-import 'package:pet_adoption_app/screens/home/image_view.dart';
+import 'package:pet_adoption_app/screens/screens.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class PetDetailScreen extends StatefulWidget {
-  const PetDetailScreen({super.key, required this.index, required this.pet});
-  final int index;
+  const PetDetailScreen({super.key, required this.pet});
   final Pet pet;
 
   @override
@@ -55,7 +54,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
                         transitionDuration: 400.ms,
                         pageBuilder: (_, __, ___) => ImageViewScreen(
                           imageUrl: widget.pet.image,
-                          index: widget.index,
+                          id: widget.pet.id,
                         ),
                         transitionsBuilder: (_, animation, __, child) => FadeTransition(
                           opacity: animation,
@@ -65,7 +64,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
                     );
                   },
                   child: Hero(
-                    tag: "pet${widget.index}",
+                    tag: "pet${widget.pet.id}",
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
                       child: CachedNetworkImage(
@@ -104,7 +103,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
             child: Row(
               children: [
                 Expanded(child: _adoptionButton()),
-                const HeartAnimation(),
+                HeartAnimation(pet: widget.pet),
                 SizedBox(width: context.width * .05),
               ],
             ),
@@ -236,9 +235,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
 
   _adoptPetAction() {
     _isAdopted.value = true;
+    context.read<PetsNotifier>().markPetAsAdopted(widget.pet);
     return showGeneralDialog(
       context: context,
-      transitionBuilder: (context, animation, secondaryAnimation, child) => ScaleTransition(
+      transitionBuilder: (_, animation, __, child) => ScaleTransition(
         scale: CurvedAnimation(
           parent: animation,
           curve: Curves.easeOutBack,

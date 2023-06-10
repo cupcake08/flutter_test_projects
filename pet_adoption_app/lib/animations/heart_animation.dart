@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pet_adoption_app/models/pet.dart';
+import 'package:pet_adoption_app/providers/pets_notifier.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 class HeartAnimation extends StatefulWidget {
-  const HeartAnimation({super.key});
+  const HeartAnimation({super.key, required this.pet});
+  final Pet pet;
 
   @override
   State<HeartAnimation> createState() => _HeartAnimationState();
@@ -38,6 +42,10 @@ class _HeartAnimationState extends State<HeartAnimation> with TickerProviderStat
       parent: _controller,
       curve: const ElasticOutCurve(0.8),
     );
+
+    if (widget.pet.isFavorite) {
+      _controller.forward();
+    }
   }
 
   @override
@@ -53,9 +61,9 @@ class _HeartAnimationState extends State<HeartAnimation> with TickerProviderStat
       onTap: () {
         _controller.status == AnimationStatus.dismissed ? _controller.forward() : _controller.reverse();
         if (_controller.status == AnimationStatus.forward) {
-          // swrite a cool line saying added to favorites
           context.showSnackBar("Added to favorites!");
         }
+        context.read<PetsNotifier>().markPetAsFavorite(widget.pet);
       },
       onTapDown: (details) => _outerBoxController.forward(),
       onTapUp: (details) => _outerBoxController.reverse(),

@@ -5,9 +5,10 @@ import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDi
 import 'package:pet_adoption_app/data/images.dart';
 import 'package:pet_adoption_app/data/pets.dart';
 import 'package:pet_adoption_app/models/pet.dart';
+import 'package:pet_adoption_app/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AppInit {
+sealed class AppInit {
   static late final Isar? isar;
 
   static late final SharedPreferences prefs;
@@ -27,6 +28,7 @@ class AppInit {
     await initPrefs();
     await initIsar();
     if (canIFillDataToIsar()) {
+      "Filling data to isar".log();
       fillDataToIsar();
     }
   }
@@ -49,7 +51,7 @@ class AppInit {
     isar = await Isar.open([PetSchema], directory: dir.path);
   }
 
-  static void fillDataToIsar() async {
+  static Future<void> fillDataToIsar() async {
     assert(isar != null, "Isar is not initialized");
     generatePets();
     final ids = (await isar!.pets.where().findAll()).map((e) => e.id).toList();
