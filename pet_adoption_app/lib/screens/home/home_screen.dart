@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
             title: Text(
-              "HOME",
+              "PAWFECT PET",
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             actions: _appBarActions(),

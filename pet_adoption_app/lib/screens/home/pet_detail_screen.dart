@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pet_adoption_app/animations/heart_animation.dart';
@@ -26,12 +27,17 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
   void initState() {
     super.initState();
     _isAdopted = ValueNotifier(widget.pet.isAdopted);
-    isDarkMode = context.read<ThemeProvider>().themeMode == ThemeMode.dark;
     _animationController = AnimationController(
       vsync: this,
       duration: 800.ms,
     );
     _animationController.forward();
+  }
+
+  @override
+  void didChangeDependencies() {
+    isDarkMode = context.read<ThemeProvider>().themeMode == ThemeMode.dark;
+    super.didChangeDependencies();
   }
 
   @override
@@ -330,7 +336,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
   _calculateAgeBasedOnDOB() {
     final dob = widget.pet.birthDate;
     final now = DateTime.now();
-    final age = now.difference(dob).inDays ~/ 365;
+    final age = dob.difference(now).inDays ~/ 365;
     return "$age Years";
   }
 
@@ -364,6 +370,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
           style: style,
           children: [
             TextSpan(
+              recognizer: TapGestureRecognizer()..onTap = () => _showFullDescription(),
               text: "...Read More",
               style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     fontWeight: FontWeight.bold,
@@ -377,6 +384,51 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
     return Text(
       x,
       style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.grey),
+    );
+  }
+
+  _showFullDescription() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'pet description',
+      transitionBuilder: (_, animation, __, child) => ScaleTransition(
+        scale: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutBack,
+        ),
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      ),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Description",
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, justo ac ultrices ultricies, nisl nunc ultrices dolor, quis aliquam nisl nunc ut nisl. Sed euismod, justo ac ultrices ultricies, nisl nunc ultrices dolor, quis aliquam nisl nunc ut nisl.",
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                        color: isDarkMode ? Colors.grey.shade200 : Colors.grey,
+                      ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

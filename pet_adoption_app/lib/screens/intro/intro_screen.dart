@@ -105,10 +105,9 @@ class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStat
             backgroundColor: const Color(0xFFFCAB4C),
             shape: const StadiumBorder(),
             padding: const EdgeInsets.all(0),
-            fixedSize: Size(context.width * .45, context.height * .06),
+            fixedSize: Size(context.width * .5, context.height * .06),
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(width: context.width * .05),
               const Text(
@@ -125,7 +124,7 @@ class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStat
                   shape: BoxShape.circle,
                   color: Colors.white,
                 ),
-                padding: const EdgeInsets.all(5),
+                padding: EdgeInsets.all(context.width * .02),
                 child: Icon(
                   Icons.pets,
                   size: context.height * .03,
