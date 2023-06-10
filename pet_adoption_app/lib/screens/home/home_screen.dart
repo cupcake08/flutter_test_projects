@@ -162,32 +162,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: InkWell(
-            onTap: () {
-              showSearch(
-                context: context,
-                delegate: PetSearchDelegate(),
-              );
-            },
-            child: Row(
-              children: [
-                const SizedBox(width: 16),
-                Icon(
-                  Icons.search,
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: "Search For Pets",
-                      border: InputBorder.none,
-                    ),
+          child: Row(
+            children: [
+              const SizedBox(width: 16),
+              Icon(
+                Icons.search,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  readOnly: true,
+                  onTap: () {
+                    showSearch(
+                      context: context,
+                      delegate: PetSearchDelegate(),
+                    );
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Search For Pets",
+                    border: InputBorder.none,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

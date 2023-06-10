@@ -6,12 +6,10 @@
 // tree, read text, and verify that the values of widget properties are correct.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:isar/isar.dart';
 import 'package:pet_adoption_app/main.dart';
 
 import 'package:pet_adoption_app/screens/screens.dart';
 import 'package:pet_adoption_app/screens/widgets/widgets.dart';
-import 'package:pet_adoption_app/utils/utils.dart';
 
 void main() {
   testWidgets('Pet Adoption Test', (widgetTester) async {
@@ -22,9 +20,9 @@ void main() {
     //   ], child: const MyApp()),
     // );
 
-    await Isar.initializeIsarCore(download: true);
-    await AppInit.init();
+    debugPrint("Starting the test");
 
+    debugPrint("Pump Widget my app");
     await widgetTester.pumpWidget(const MyApp());
 
     await widgetTester.pumpAndSettle();
