@@ -79,6 +79,12 @@ final class PetsProvider extends ChangeNotifier {
     setGettingPets(false);
   }
 
+  // get the adopted pets list
+  Future<List<Pet>> getAdoptedPets() async {
+    assert(AppInit.isar != null, "Isar is not initialized");
+    return await AppInit.isar!.pets.filter().isAdoptedEqualTo(true).findAll();
+  }
+
   Future<void> getPetsPagination(int skip) async {
     final index = _currentCategorySelectedIndex;
     _gettingMorePets = true;

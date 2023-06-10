@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pet_adoption_app/providers/providers.dart';
+import 'package:pet_adoption_app/screens/screens.dart';
 import 'package:pet_adoption_app/screens/widgets/widgets.dart';
 import 'package:pet_adoption_app/utils/delegates/search_delagate.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
@@ -279,6 +280,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         },
         icon: Icon(
           Icons.switch_access_shortcut,
+          color: isDarkMode ? Colors.white : Colors.black,
+        ),
+      ),
+      // history of adopted pets
+      IconButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const HistoryScreen(),
+          ),
+        ),
+        icon: Icon(
+          Icons.history,
           color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
