@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _listController = AnimationController(vsync: this, duration: 800.ms);
     _showFloatingActionButton = ValueNotifier(false);
     _scrollController = ScrollController();
-    final provider = context.read<PetsNotifier>();
+    final provider = context.read<PetsProvider>();
     if (!provider.gettingPets && provider.cats.isEmpty) {
       provider.setCurrentCategorySelectedIndex(0, notify: false);
     }
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     // pagination
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent) {
-      final provider = context.read<PetsNotifier>();
+      final provider = context.read<PetsProvider>();
       bool hasMore = false;
       int skip = 0;
 
@@ -193,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   _loadItems() {
-    return Selector<PetsNotifier, (int, bool, int)>(
+    return Selector<PetsProvider, (int, bool, int)>(
       selector: (p0, p1) => (
         p1.currentCategorySelectedIndex,
         p1.gettingPets,
@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         if (data.$2) {
           return const Center(child: CircularProgressIndicator());
         }
-        final provider = context.read<PetsNotifier>();
+        final provider = context.read<PetsProvider>();
         final pets = provider.getPetList(data.$1);
         if (provider.resetTheAnimationController) {
           _listController.reset();
@@ -286,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   _getTheLength() {
-    final provider = context.read<PetsNotifier>();
+    final provider = context.read<PetsProvider>();
     switch (provider.currentCategorySelectedIndex) {
       case 0:
         return provider.cats.length;
@@ -325,7 +325,7 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> with 
 
   @override
   Widget build(BuildContext context) {
-    return Selector<PetsNotifier, int>(
+    return Selector<PetsProvider, int>(
         selector: (p0, p1) => p1.currentCategorySelectedIndex,
         builder: (context, value, _) {
           return Row(

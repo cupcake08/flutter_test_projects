@@ -63,7 +63,7 @@ class _HeartAnimationState extends State<HeartAnimation> with TickerProviderStat
         if (_controller.status == AnimationStatus.forward) {
           context.showSnackBar("Added to favorites!");
         }
-        context.read<PetsNotifier>().markPetAsFavorite(widget.pet);
+        context.read<PetsProvider>().markPetAsFavorite(widget.pet);
       },
       onTapDown: (details) => _outerBoxController.forward(),
       onTapUp: (details) => _outerBoxController.reverse(),

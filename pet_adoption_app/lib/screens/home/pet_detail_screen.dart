@@ -19,7 +19,7 @@ class PetDetailScreen extends StatefulWidget {
 
 class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
-  late final bool isDarkMode;
+  bool isDarkMode = false;
 
   late final ValueNotifier<bool> _isAdopted;
 
@@ -241,7 +241,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> with SingleTickerProv
 
   _adoptPetAction() {
     _isAdopted.value = true;
-    context.read<PetsNotifier>().markPetAsAdopted(widget.pet);
+    context.read<PetsProvider>().markPetAsAdopted(widget.pet);
     return showGeneralDialog(
       context: context,
       transitionBuilder: (_, animation, __, child) => ScaleTransition(

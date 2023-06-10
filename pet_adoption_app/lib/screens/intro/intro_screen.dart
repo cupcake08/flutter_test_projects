@@ -21,7 +21,7 @@ class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStat
       vsync: this,
       duration: 300.ms,
     );
-    context.read<PetsNotifier>().setCurrentCategorySelectedIndex(0, notify: false);
+    context.read<PetsProvider>().setCurrentCategorySelectedIndex(0, notify: false);
   }
 
   @override

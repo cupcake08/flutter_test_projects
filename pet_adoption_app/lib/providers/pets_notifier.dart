@@ -3,7 +3,7 @@ import 'package:isar/isar.dart';
 import 'package:pet_adoption_app/models/pet.dart';
 import 'package:pet_adoption_app/utils/utils.dart';
 
-final class PetsNotifier extends ChangeNotifier {
+final class PetsProvider extends ChangeNotifier {
   int _currentCategorySelectedIndex = 0;
   int get currentCategorySelectedIndex => _currentCategorySelectedIndex;
 

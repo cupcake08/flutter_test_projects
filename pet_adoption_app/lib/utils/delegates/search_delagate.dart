@@ -26,7 +26,7 @@ class PetSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    final provider = context.read<PetsNotifier>();
+    final provider = context.read<PetsProvider>();
     if (provider.searchPets.isEmpty) {
       return const Center(
         child: Text('No results found'),
@@ -37,21 +37,21 @@ class PetSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    if (query.length > 2) {
-      context.read<PetsNotifier>().getPetsListBySearch(query);
+    if (query.isNotEmpty) {
+      context.read<PetsProvider>().getPetsListBySearch(query);
     } else {
       return const Center(
         child: Text('Search Pets'),
       );
     }
-    return Selector<PetsNotifier, bool>(
+    return Selector<PetsProvider, bool>(
       builder: (context, searchingPets, _) {
         if (searchingPets) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        final pets = context.read<PetsNotifier>().searchPets;
+        final pets = context.read<PetsProvider>().searchPets;
         return _listOfPets(pets);
       },
       selector: (context, provider) => provider.searchingPets,

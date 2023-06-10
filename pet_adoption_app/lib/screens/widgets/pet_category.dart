@@ -22,7 +22,7 @@ class CategoryWidget extends StatelessWidget {
     const borderShift = 3.0;
     return InkWell(
       onTap: () {
-        context.read<PetsNotifier>().setCurrentCategorySelectedIndex(index);
+        context.read<PetsProvider>().setCurrentCategorySelectedIndex(index);
       },
       child: Column(
         children: [
